@@ -1,0 +1,74 @@
+﻿@page "/transactions"
+@using System.Text.Json
+@attribute [StreamRendering]
+
+<PageTitle>Transactions</PageTitle>
+
+<h1>Transactions</h1>
+
+
+@if (transactions == null)
+{
+    <p><em>Loading transactions...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Transaction Name</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in transactions)
+            {
+                <tr>
+                    <td>@transaction.TransactionName</td>
+                    <td>@transaction.Description</td>
+                    <td>@transaction.AmountTransaction</td>
+                    <td>@transaction.Created</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Transaction>? transactions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri("https://localhost:7112");
+
+        var response = await httpClient.GetAsync("api/transactions/account/3");
+
+        var jsonString = await response.Content.ReadAsStringAsync();
+
+        var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true // Optional: for pretty-printed JSON
+            };
+   
+
+        var content = JsonSerializer.Deserialize<List<Transaction>>(jsonString, options);
+
+        transactions = content;
+
+    }
+
+    public class Transaction
+    {
+        public int Id { get; set; }
+        public string TransactionName { get; set; }
+        public string Description { get; set; }
+        public double AmountTransaction { get; set; }
+        public DateTime Created { get; set; }
+    }
+
+
+}

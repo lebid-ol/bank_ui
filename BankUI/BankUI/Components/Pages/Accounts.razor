@@ -1,0 +1,74 @@
+﻿@page "/accounts"
+@using System.Text.Json
+@attribute [StreamRendering]
+
+<PageTitle>Accounts</PageTitle>
+
+<h1>Accounts</h1>
+
+
+@if (accounts == null)
+{
+    <p><em>Loading Accounts...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Account Name</th>
+                <th>Account Type</th>
+                <th>Balance</th>
+                <th>Balance Euro</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var account in accounts)
+            {
+                <tr>
+                    <td>@account.AccountName</td>
+                    <td>@account.AccountType</td>
+                    <td>@account.Balance</td>
+                    <td>@account.BalanceEuro</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Account>? accounts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri("https://localhost:7112");
+
+        var response = await httpClient.GetAsync("api/accounts");
+
+        var jsonString = await response.Content.ReadAsStringAsync();
+
+        var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true // Optional: for pretty-printed JSON
+            };
+   
+
+        var content = JsonSerializer.Deserialize<List<Account>>(jsonString, options);
+
+        accounts = content;
+
+    }
+
+    public class Account
+    {
+        public int Id { get; set; }
+        public string AccountName { get; set; }
+        public string AccountType { get; set; }
+        public double Balance { get; set; }
+        public double BalanceEuro { get; set; }
+    }
+
+
+}

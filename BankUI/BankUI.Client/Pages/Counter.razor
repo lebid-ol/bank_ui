@@ -1,0 +1,25 @@
+﻿@page "/counter"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Корзина</PageTitle>
+
+<h1>Товавров в корзине @currentCount</h1>
+
+<p role="status">Товавров в корзине сейчас: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Добавить в   @currentCount</button>
+<button class="btn btn-primary" @onclick="BackCount">Добавить в  @currentCount</button>
+
+@code {
+    private string currentCount = "TEST";
+
+    private void IncrementCount()
+    {
+        currentCount = "HELLO WORLD";
+    }
+
+    private void BackCount()
+    {
+        currentCount = "TEST";
+    }
+}
