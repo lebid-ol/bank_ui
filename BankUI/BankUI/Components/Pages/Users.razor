@@ -1,0 +1,77 @@
+﻿@page "/users"
+@using System.Text.Json
+@attribute [StreamRendering]
+
+<PageTitle>Users</PageTitle>
+
+<h1>Users</h1>
+
+
+@if (users == null)
+{
+    <p><em>Loading Users...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Account Name</th>
+                <th>Account Type</th>
+                <th>Balance</th>
+                <th>Balance Euro</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>@user.UserLastName</td>
+                    <td>@user.PhoneNumber </td>
+                    <td>@user.BillingAddress  </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<User>? users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri("https://localhost:7112");
+
+        var response = await httpClient.GetAsync("api/users");
+
+        var jsonString = await response.Content.ReadAsStringAsync();
+
+        var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true // Optional: for pretty-printed JSON
+            };
+   
+
+        var content = JsonSerializer.Deserialize<List<User>>(jsonString, options);
+
+        users = content;
+
+    }
+
+    public class User
+    {
+       
+        public int Id { get; set; }
+        public string UserName { get; set; }
+        public string Email { get; set; }
+        public string UserLastName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string BillingAddress { get; set; }
+    }
+
+
+}
